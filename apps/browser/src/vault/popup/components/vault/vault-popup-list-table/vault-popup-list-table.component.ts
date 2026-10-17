@@ -165,7 +165,7 @@ export class VaultPopupListTableComponent {
   private readonly apiKeyService = inject(ApiKeyService);
 
   protected isApiKey(cipher: CipherViewLike): boolean {
-    return !CipherViewLikeUtils.isCipherListView(cipher) && this.apiKeyService.isApiKey(cipher);
+    return this.apiKeyService.isApiKey(cipher);
   }
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */

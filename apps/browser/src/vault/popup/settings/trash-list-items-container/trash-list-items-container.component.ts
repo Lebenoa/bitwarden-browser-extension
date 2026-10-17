@@ -14,7 +14,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DialogService,
   IconButtonModule,
@@ -79,7 +78,7 @@ export class TrashListItemsContainerComponent {
   ) {}
 
   protected isApiKey(cipher: PopupCipherViewLike): boolean {
-    return !CipherViewLikeUtils.isCipherListView(cipher) && this.apiKeyService.isApiKey(cipher);
+    return this.apiKeyService.isApiKey(cipher);
   }
 
   /**

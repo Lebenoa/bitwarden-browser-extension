@@ -8,6 +8,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { CipherListView, FieldListView } from "@bitwarden/sdk-internal";
 
 /**
  * Line stored in the cipher's notes that marks a Secure Note as an API Key item.
@@ -34,21 +35,30 @@ export class ApiKeyService {
    * Returns true when the given cipher should be presented as an API Key.
    * A missing/damaged marker or a missing "Key" hidden field makes this false,
    * and the item remains accessible as an ordinary Secure Note.
+   *
+   * Accepts both decrypted shapes the popup handles: `CipherView` (editor/view
+   * flows) and `CipherListView` (vault list rows from `cipherListViews$`).
+   * `CipherListView` carries decrypted `notes` and field name/type (hidden
+   * values are omitted there — never needed for classification).
    */
-  isApiKey(cipher: CipherView | null | undefined): boolean {
-    if (
-      cipher == null ||
-      cipher.type !== CipherType.SecureNote ||
-      this.getKeyField(cipher) == null
-    ) {
-      return false;
-    }
-    return this.hasMarker(cipher.notes);
+  isApiKey(cipher: CipherView | CipherListView | null | undefined): boolean {
+    return cipher != null && this.getKeyField(cipher) != null && this.hasMarker(cipher.notes);
   }
 
   /** Returns the hidden "Key" field of an API Key cipher, or null. */
-  getKeyField(cipher: CipherView | null | undefined): FieldView | null {
-    if (cipher == null || cipher.type !== CipherType.SecureNote || !cipher.fields) {
+  getKeyField(
+    cipher: CipherView | CipherListView | null | undefined,
+  ): FieldView | FieldListView | null {
+    if (cipher == null || !cipher.fields) {
+      return null;
+    }
+    // `CipherView.type` is a numeric enum; `CipherListView.type` is the string tag
+    // "secureNote" or an object tagged by cipher family.
+    const isSecureNote =
+      typeof cipher.type === "object" || typeof cipher.type === "string"
+        ? cipher.type === "secureNote"
+        : cipher.type === CipherType.SecureNote;
+    if (!isSecureNote) {
       return null;
     }
     const keyFields = cipher.fields.filter(

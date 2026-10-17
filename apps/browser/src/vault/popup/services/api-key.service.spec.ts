@@ -1,6 +1,7 @@
 import { CipherType, FieldType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { API_KEY_FIELD_NAME, API_KEY_MARKER_LINE, ApiKeyService } from "./api-key.service";
 
@@ -26,6 +27,37 @@ function secureNote(
   view.fields = fields;
   view.notes = notes;
   return view;
+}
+
+/**
+ * Builds the `CipherListView` shape the popup vault list emits (`cipherListViews$`):
+ * `type` is the string tag `"secureNote"`, notes are decrypted for search, and field
+ * entries carry name + type but omit hidden values.
+ */
+function listSecureNote(
+  fields: Array<{ name?: string; type: number }> = [
+    { name: API_KEY_FIELD_NAME, type: FieldType.Hidden },
+  ],
+  notes: string | null = API_KEY_MARKER_LINE,
+): CipherListView {
+  return {
+    id: "cipher-list-1" as unknown as CipherListView["id"],
+    name: "Cloudflare API Token",
+    subtitle: "",
+    type: "secureNote",
+    favorite: false,
+    reprompt: 0,
+    organizationUseTotp: false,
+    edit: true,
+    viewPassword: true,
+    attachments: 0,
+    hasOldAttachments: false,
+    creationDate: "",
+    revisionDate: "",
+    copyableFields: [],
+    notes: notes ?? undefined,
+    fields: fields,
+  } as unknown as CipherListView;
 }
 
 describe("ApiKeyService", () => {
@@ -87,6 +119,50 @@ describe("ApiKeyService", () => {
     it("handles null and undefined ciphers", () => {
       expect(service.isApiKey(null)).toBe(false);
       expect(service.isApiKey(undefined)).toBe(false);
+    });
+  });
+
+  describe("isApiKey on CipherListView (vault list rows)", () => {
+    it("identifies a correctly shaped API Key list row", () => {
+      expect(service.isApiKey(listSecureNote())).toBe(true);
+    });
+
+    it("rejects a list row without the hidden Key field", () => {
+      expect(service.isApiKey(listSecureNote([], API_KEY_MARKER_LINE))).toBe(false);
+    });
+
+    it("rejects a list row whose Key field is text-typed", () => {
+      expect(
+        service.isApiKey(listSecureNote([{ name: API_KEY_FIELD_NAME, type: FieldType.Text }])),
+      ).toBe(false);
+    });
+
+    it("rejects a list row with a differently named Key field", () => {
+      expect(service.isApiKey(listSecureNote([{ name: "Token", type: FieldType.Hidden }]))).toBe(
+        false,
+      );
+    });
+
+    it("rejects a list row with multiple Key fields (ambiguous)", () => {
+      expect(
+        service.isApiKey(
+          listSecureNote([
+            { name: API_KEY_FIELD_NAME, type: FieldType.Hidden },
+            { name: API_KEY_FIELD_NAME, type: FieldType.Hidden },
+          ]),
+        ),
+      ).toBe(false);
+    });
+
+    it("rejects a missing marker in a list row", () => {
+      expect(service.isApiKey(listSecureNote(undefined, null))).toBe(false);
+      expect(service.isApiKey(listSecureNote(undefined, "user note only"))).toBe(false);
+    });
+
+    it("rejects a non-note list cipher even with a Key field and marker", () => {
+      const login = listSecureNote() as CipherListView;
+      login.type = { login: { username: "u", password: "p" } } as unknown as CipherListView["type"];
+      expect(service.isApiKey(login)).toBe(false);
     });
   });
 

@@ -45,6 +45,7 @@ import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
+import { ApiKeyService } from "./api-key.service";
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
@@ -104,6 +105,7 @@ export class VaultPopupListTableService {
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
+  private readonly apiKeyService = inject(ApiKeyService);
 
   /**
    * The vault the page's `:vaultId` route segment narrows to.
@@ -401,6 +403,14 @@ export class VaultPopupListTableService {
 
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
+            return;
+          }
+          // API Key items open in the dedicated editor; everything else uses the
+          // generic Secure Note view.
+          if (this.apiKeyService.isApiKey(cipher)) {
+            await this.router.navigate(["/new-api-key"], {
+              queryParams: { cipherId: cipher.id },
+            });
             return;
           }
           await this.router.navigate(["/view-cipher"], {

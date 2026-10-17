@@ -303,7 +303,7 @@ export class VaultListItemsContainerComponent {
   ) {}
 
   protected isApiKey(cipher: CipherViewLike): boolean {
-    return !CipherViewLikeUtils.isCipherListView(cipher) && this.apiKeyService.isApiKey(cipher);
+    return this.apiKeyService.isApiKey(cipher);
   }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
@@ -377,10 +377,7 @@ export class VaultListItemsContainerComponent {
           }
           // API Key items open in the dedicated editor; everything else uses the
           // generic Secure Note view.
-          if (
-            !CipherViewLikeUtils.isCipherListView(cipher) &&
-            this.apiKeyService.isApiKey(cipher)
-          ) {
+          if (this.apiKeyService.isApiKey(cipher)) {
             await this.router.navigate(["/new-api-key"], {
               queryParams: { cipherId: cipher.id },
             });
