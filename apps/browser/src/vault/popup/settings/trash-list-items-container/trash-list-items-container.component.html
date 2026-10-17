@@ -16,7 +16,11 @@
             (click)="onViewCipher(cipher)"
           >
             <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
-              <app-vault-icon [cipher]="cipher"></app-vault-icon>
+              @if (isApiKey(cipher)) {
+                <i class="bwi bwi-key tw-text-muted" aria-hidden="true"></i>
+              } @else {
+                <app-vault-icon [cipher]="cipher"></app-vault-icon>
+              }
             </div>
             <span data-testid="item-name">{{ cipher.name }}</span>
             @if (cipher.organizationId) {

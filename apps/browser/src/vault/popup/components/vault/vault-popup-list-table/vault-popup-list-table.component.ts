@@ -77,6 +77,7 @@ import {
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { ImportUpgradeNavigationService } from "../../../../../tools/popup/settings/import/import-upgrade-navigation.service";
+import { ApiKeyService } from "../../../services/api-key.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
@@ -161,6 +162,11 @@ export class VaultPopupListTableComponent {
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly accountService = inject(AccountService);
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly apiKeyService = inject(ApiKeyService);
+
+  protected isApiKey(cipher: CipherViewLike): boolean {
+    return !CipherViewLikeUtils.isCipherListView(cipher) && this.apiKeyService.isApiKey(cipher);
+  }
 
   /** Focusing the search inside a restored collapse would hold it open (`bitCollapseOnScroll`). */
   protected readonly autofocusSearch = !inject(VaultPopupScrollPositionService).restoresCollapse();

@@ -137,7 +137,11 @@
         class="tw-flex tw-items-center tw-gap-2 tw-w-full tw-min-w-0 tw-p-0 tw-bg-transparent tw-border-0 tw-text-left tw-text-main tw-cursor-pointer focus-visible:tw-outline-none"
       >
         <div class="tw-justify-start tw-w-7 tw-flex tw-shrink-0">
-          <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+          @if (isApiKey(row.cipher)) {
+            <i class="bwi bwi-key tw-text-muted" aria-hidden="true"></i>
+          } @else {
+            <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+          }
         </div>
         <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0">
           <div class="tw-flex tw-items-center tw-gap-1.5 tw-min-w-0">
@@ -163,7 +167,11 @@
             </div>
           </div>
           <span class="tw-text-muted tw-text-xs tw-truncate">
-            {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
+            @if (isApiKey(row.cipher)) {
+              {{ "typeApiKey" | i18n }}
+            } @else {
+              {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
+            }
           </span>
         </div>
       </button>

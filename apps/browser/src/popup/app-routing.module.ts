@@ -97,6 +97,7 @@ import { SettingsV2Component } from "../tools/popup/settings/settings-v2.compone
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-edit.component";
+import { ApiKeyEditorComponent } from "../vault/popup/components/vault/api-key-editor/api-key-editor.component";
 import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments/attachments.component";
 import { IntroCarouselComponent } from "../vault/popup/components/vault/intro-carousel/intro-carousel.component";
@@ -264,6 +265,12 @@ const routes: Routes = [
     canActivate: [authGuard, debounceNavigationGuard()],
     data: { elevation: 1, resetRouterCacheOnTabChange: true } satisfies RouteDataProperties,
     runGuardsAndResolvers: "always",
+  },
+  {
+    path: "new-api-key",
+    component: ApiKeyEditorComponent,
+    canActivate: [authGuard],
+    data: { elevation: 1, resetRouterCacheOnTabChange: true } satisfies RouteDataProperties,
   },
   {
     path: "edit-cipher",

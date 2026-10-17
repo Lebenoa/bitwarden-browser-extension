@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   DialogService,
   IconButtonModule,
@@ -31,6 +32,7 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
+import { ApiKeyService } from "../../services/api-key.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 @Component({
@@ -73,7 +75,12 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
     private router: Router,
+    private apiKeyService: ApiKeyService,
   ) {}
+
+  protected isApiKey(cipher: PopupCipherViewLike): boolean {
+    return !CipherViewLikeUtils.isCipherListView(cipher) && this.apiKeyService.isApiKey(cipher);
+  }
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.

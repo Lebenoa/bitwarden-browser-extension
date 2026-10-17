@@ -2473,6 +2473,30 @@
   "typeLogins": {
     "message": "Logins"
   },
+  "typeApiKey": {
+    "message": "API key"
+  },
+  "typeApiKeySubtitle": {
+    "message": "Service credential"
+  },
+  "addItemHeaderApiKey": {
+    "message": "New API key"
+  },
+  "viewItemHeaderApiKey": {
+    "message": "API key"
+  },
+  "editItemHeaderApiKey": {
+    "message": "Edit API key"
+  },
+  "apiKeySecret": {
+    "message": "Key"
+  },
+  "apiKeyUri": {
+    "message": "Dashboard URL"
+  },
+  "copyApiKey": {
+    "message": "Copy API key"
+  },
   "typeSecureNote": {
     "message": "Secure note"
   },

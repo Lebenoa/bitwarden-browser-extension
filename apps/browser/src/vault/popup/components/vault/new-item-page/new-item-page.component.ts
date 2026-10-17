@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, IconComponent, IconTileComponent, ItemModule } from "@bitwarden/components";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -33,6 +33,9 @@ import { AddEditQueryParams } from "../add-edit/add-edit.component";
     PopupPageComponent,
     PopupHeaderComponent,
     AddItemGridComponent,
+    ItemModule,
+    IconTileComponent,
+    IconComponent,
   ],
 })
 export class NewItemPageComponent {
@@ -116,5 +119,14 @@ export class NewItemPageComponent {
     }
 
     void this.router.navigate(["/add-cipher"], { queryParams });
+  }
+
+  protected onApiKeySelected() {
+    const queryParams: AddEditQueryParams = {
+      folderId: this.folderId(),
+      organizationId: this.organizationId(),
+      collectionIds: this.collectionIds(),
+    };
+    void this.router.navigate(["/new-api-key"], { queryParams });
   }
 }
