@@ -27,6 +27,7 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { RestrictedCipherPolicy } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { DialogService } from "@bitwarden/components";
 import {
   ALL_ITEMS_SCOPE,
@@ -45,7 +46,6 @@ import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
-import { ApiKeyService } from "./api-key.service";
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
 import { VaultPopupListTableFiltersService } from "./vault-popup-list-table-filters.service";
@@ -66,6 +66,8 @@ export interface VaultRowActions {
   showFillOnHover: boolean;
   /** Show the launch-in-new-tab button (still gated on the cipher being launchable). */
   showLaunch: boolean;
+  /** Show the quick copy actions. */
+  showCopyActions: boolean;
   /** Offer "Autofill" in the more-options menu. */
   showAutofillInMenu: boolean;
   /** Offer "View" in the more-options menu. */
@@ -105,7 +107,6 @@ export class VaultPopupListTableService {
   private readonly router = inject(Router);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
-  private readonly apiKeyService = inject(ApiKeyService);
 
   /**
    * The vault the page's `:vaultId` route segment narrows to.
@@ -292,9 +293,12 @@ export class VaultPopupListTableService {
     { currentUriIsBlocked }: RowActionContext,
   ): VaultRowActions {
     const isAutofill = section === "autofill";
+    // The list swaps a revealed view in for its restricted row, so a restricted row has nothing
+    // revealed: the server withholds its credentials.
+    const gated = RestrictedCipherPolicy.isRestricted(cipher as CipherViewLike);
 
     // Whether clicking the row autofills: the autofill section fills unless the URI is blocked.
-    const primaryAutofill = isAutofill && !currentUriIsBlocked;
+    const primaryAutofill = !gated && isAutofill && !currentUriIsBlocked;
 
     const login = CipherViewLikeUtils.getLogin(cipher as CipherViewLike);
     const titleBase = primaryAutofill ? "autofillTitle" : "viewItemTitle";
@@ -302,8 +306,9 @@ export class VaultPopupListTableService {
     return {
       primaryAutofill,
       showFillOnHover: primaryAutofill,
-      showLaunch: !isAutofill,
-      showAutofillInMenu: !primaryAutofill,
+      showLaunch: !isAutofill && !gated,
+      showCopyActions: !gated,
+      showAutofillInMenu: !gated && !primaryAutofill,
       showViewInMenu: primaryAutofill,
       // Name the login's username field in the label when it has one.
       titleKey: login?.username != null ? `${titleBase}WithField` : titleBase,
@@ -345,7 +350,11 @@ export class VaultPopupListTableService {
    */
   async launchCipher(cipher: CipherViewLike) {
     const launchURI = CipherViewLikeUtils.getLaunchUri(cipher);
-    if (!CipherViewLikeUtils.canLaunch(cipher) || !launchURI) {
+    if (
+      !CipherViewLikeUtils.canLaunch(cipher) ||
+      !launchURI ||
+      RestrictedCipherPolicy.isRestricted(cipher)
+    ) {
       return;
     }
 
@@ -403,14 +412,6 @@ export class VaultPopupListTableService {
 
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
-            return;
-          }
-          // API Key items open in the dedicated editor; everything else uses the
-          // generic Secure Note view.
-          if (this.apiKeyService.isApiKey(cipher)) {
-            await this.router.navigate(["/new-api-key"], {
-              queryParams: { cipherId: cipher.id },
-            });
             return;
           }
           await this.router.navigate(["/view-cipher"], {

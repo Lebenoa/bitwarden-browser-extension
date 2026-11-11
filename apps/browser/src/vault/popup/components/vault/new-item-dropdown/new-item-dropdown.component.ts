@@ -104,14 +104,6 @@ export class NewItemDropdownComponent implements OnInit {
     };
   }
 
-  buildApiKeyQueryParams() {
-    return {
-      folderId: this.initialValues?.folderId,
-      organizationId: this.initialValues?.organizationId,
-      collectionIds: this.initialValues?.collectionId,
-    };
-  }
-
   openFolderDialog() {
     AddEditFolderDialogComponent.open(this.dialogService);
   }

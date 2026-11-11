@@ -9,29 +9,5 @@
       [canCreateSshKey]="true"
       (itemSelected)="onItemSelected($event)"
     />
-    @if (canCreateCipher()) {
-      <ul class="tw-grid tw-grid-cols-1 tw-list-none tw-p-0 tw-m-0">
-        <li>
-          <bit-item class="!tw-mb-0">
-            <button
-              type="button"
-              (click)="onApiKeySelected()"
-              bit-item-content
-              class="tw-w-full tw-flex tw-items-center tw-gap-4"
-            >
-              <bit-icon-tile
-                slot="start"
-                [icon]="'bwi-key'"
-                [variant]="'primary'"
-                [size]="'base'"
-              ></bit-icon-tile>
-              {{ "typeApiKey" | i18n }}
-              <div slot="secondary">{{ "typeApiKeySubtitle" | i18n }}</div>
-              <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
-            </button>
-          </bit-item>
-        </li>
-      </ul>
-    }
   </section>
 </popup-page>

@@ -31,7 +31,6 @@ import {
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
-import { ApiKeyService } from "../../services/api-key.service";
 import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 @Component({
@@ -74,12 +73,7 @@ export class TrashListItemsContainerComponent {
     private passwordRepromptService: PasswordRepromptService,
     private accountService: AccountService,
     private router: Router,
-    private apiKeyService: ApiKeyService,
   ) {}
-
-  protected isApiKey(cipher: PopupCipherViewLike): boolean {
-    return this.apiKeyService.isApiKey(cipher);
-  }
 
   /**
    * The tooltip text for the organization icon for ciphers that belong to an organization.

@@ -32,10 +32,6 @@
     @if ((cipherMenuItems$ | async)?.length) {
       <bit-menu-divider></bit-menu-divider>
     }
-    <a bitMenuItem [routerLink]="['/new-api-key']" [queryParams]="buildApiKeyQueryParams()">
-      <i class="bwi bwi-key" slot="start" aria-hidden="true"></i>
-      {{ "typeApiKey" | i18n }}
-    </a>
     <button type="button" bitMenuItem (click)="openFolderDialog()">
       <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
       {{ "folder" | i18n }}

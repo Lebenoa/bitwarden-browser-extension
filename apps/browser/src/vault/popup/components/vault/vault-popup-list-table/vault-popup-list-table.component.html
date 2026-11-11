@@ -91,6 +91,24 @@
         [options]="nestedFolderOptions()"
       ></bit-filter-menu>
     }
+
+    @if (itemFilter != null && contributedFilterOptions().length) {
+      <bit-filter-menu
+        [key]="itemFilter.key"
+        [placeholderText]="itemFilter.label"
+        multiple
+        [icon]="itemFilter.icon"
+      >
+        @for (option of contributedFilterOptions(); track option.id) {
+          <bit-filter-option
+            [value]="option.id"
+            [iconTile]="contributedFilterTiles().get(option.id)"
+            [count]="contributedFilterCount(option.id)"
+            >{{ option.name }}</bit-filter-option
+          >
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
   <app-vault-filters-tour [toolbar]="toolbar" />
   <!--
@@ -143,11 +161,7 @@
         class="tw-flex tw-items-center tw-gap-2 tw-w-full tw-min-w-0 tw-p-0 tw-bg-transparent tw-border-0 tw-text-left tw-text-main tw-cursor-pointer focus-visible:tw-outline-none"
       >
         <div class="tw-justify-start tw-w-7 tw-flex tw-shrink-0">
-          @if (isApiKey(row.cipher)) {
-            <i class="bwi bwi-key tw-text-muted" aria-hidden="true"></i>
-          } @else {
-            <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
-          }
+          <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
         </div>
         <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0">
           <div class="tw-flex tw-items-center tw-gap-1.5 tw-min-w-0">
@@ -170,14 +184,13 @@
                   [appA11yTitle]="'attachments' | i18n"
                 ></bit-icon>
               }
+              @if (rowIcon) {
+                <ng-container *ngComponentOutlet="rowIcon; inputs: { cipher: row.cipher }" />
+              }
             </div>
           </div>
           <span class="tw-text-muted tw-text-xs tw-truncate">
-            @if (isApiKey(row.cipher)) {
-              {{ "typeApiKey" | i18n }}
-            } @else {
-              {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
-            }
+            <app-vault-row-subtitle [cipher]="row.cipher"></app-vault-row-subtitle>
           </span>
         </div>
       </button>
@@ -201,7 +214,9 @@
             [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
-        <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        @if (row.actions.showCopyActions) {
+          <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        }
         <app-item-more-options
           [cipher]="row.cipher"
           [showAutofill]="row.actions.showAutofillInMenu"

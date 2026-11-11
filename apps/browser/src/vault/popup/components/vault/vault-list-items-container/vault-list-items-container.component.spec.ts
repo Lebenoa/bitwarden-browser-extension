@@ -12,7 +12,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CompactModeService, DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { ApiKeyService } from "../../../services/api-key.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -70,7 +69,6 @@ describe("VaultListItemsContainerComponent", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
-        { provide: ApiKeyService, useValue: new ApiKeyService() },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })

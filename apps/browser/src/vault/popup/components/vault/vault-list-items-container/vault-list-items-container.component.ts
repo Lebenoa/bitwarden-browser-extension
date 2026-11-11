@@ -52,7 +52,6 @@ import {
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
-import { ApiKeyService } from "../../../services/api-key.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   VaultPopupSectionService,
@@ -299,12 +298,7 @@ export class VaultListItemsContainerComponent {
     private router: Router,
     private dialogService: DialogService,
     private accountService: AccountService,
-    private apiKeyService: ApiKeyService,
   ) {}
-
-  protected isApiKey(cipher: CipherViewLike): boolean {
-    return this.apiKeyService.isApiKey(cipher);
-  }
 
   onCipherSelect(cipher: PopupCipherViewLike) {
     return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
@@ -373,14 +367,6 @@ export class VaultListItemsContainerComponent {
 
           const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
           if (!repromptPassed) {
-            return;
-          }
-          // API Key items open in the dedicated editor; everything else uses the
-          // generic Secure Note view.
-          if (this.apiKeyService.isApiKey(cipher)) {
-            await this.router.navigate(["/new-api-key"], {
-              queryParams: { cipherId: cipher.id },
-            });
             return;
           }
           await this.router.navigate(["/view-cipher"], {

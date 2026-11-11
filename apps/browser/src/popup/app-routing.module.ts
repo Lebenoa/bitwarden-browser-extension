@@ -45,6 +45,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { canAccessAutoConfirmSettings } from "@bitwarden/auto-confirm/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { RestrictedCipherAction } from "@bitwarden/common/vault/utils/restricted-cipher-policy";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { canActivateImportType, IMPORT_DESTINATION_ROUTE_PATH } from "@bitwarden/importer-ui";
 import {
@@ -98,7 +99,6 @@ import { SettingsV2Component } from "../tools/popup/settings/settings-v2.compone
 import { ShareItemComponent } from "../tools/popup/share/share-item.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-edit.component";
-import { ApiKeyEditorComponent } from "../vault/popup/components/vault/api-key-editor/api-key-editor.component";
 import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments/attachments.component";
 import { IntroCarouselComponent } from "../vault/popup/components/vault/intro-carousel/intro-carousel.component";
@@ -115,6 +115,7 @@ import {
 import { clearVaultStateGuard } from "../vault/popup/guards/clear-vault-state.guard";
 import { IntroCarouselGuard } from "../vault/popup/guards/intro-carousel.guard";
 import { restoreVaultScopeGuard } from "../vault/popup/guards/restore-vault-scope.guard";
+import { restrictedCipherGuard } from "../vault/popup/guards/restricted-cipher.guard";
 import { AdminSettingsComponent } from "../vault/popup/settings/admin-settings.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { ArchiveComponent } from "../vault/popup/settings/archive.component";
@@ -270,15 +271,13 @@ const routes: Routes = [
     runGuardsAndResolvers: "always",
   },
   {
-    path: "new-api-key",
-    component: ApiKeyEditorComponent,
-    canActivate: [authGuard],
-    data: { elevation: 1, resetRouterCacheOnTabChange: true } satisfies RouteDataProperties,
-  },
-  {
     path: "edit-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard, debounceNavigationGuard()],
+    canActivate: [
+      authGuard,
+      debounceNavigationGuard(),
+      restrictedCipherGuard(RestrictedCipherAction.Edit),
+    ],
     data: {
       // Above "trash"
       elevation: 3,
@@ -432,7 +431,7 @@ const routes: Routes = [
   {
     path: "clone-cipher",
     component: AddEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.Clone)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
@@ -742,7 +741,7 @@ const routes: Routes = [
   {
     path: "assign-collections",
     component: AssignCollections,
-    canActivate: [authGuard],
+    canActivate: [authGuard, restrictedCipherGuard(RestrictedCipherAction.AssignCollections)],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
