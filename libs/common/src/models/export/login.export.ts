@@ -26,6 +26,7 @@ export class LoginExport {
     view.username = req.username;
     view.password = req.password;
     view.totp = req.totp;
+    view.httpAuthenticationEnabled = req.httpAuthenticationEnabled;
     if (req.fido2Credentials != null) {
       view.fido2Credentials = req.fido2Credentials.map((key) => Fido2CredentialExport.toView(key));
     }
@@ -38,6 +39,7 @@ export class LoginExport {
     }
     domain.username = req.username != null ? new EncString(req.username) : undefined;
     domain.password = req.password != null ? new EncString(req.password) : undefined;
+    domain.httpAuthenticationEnabled = req.httpAuthenticationEnabled;
     domain.totp = req.totp != null ? new EncString(req.totp) : undefined;
     if (req.fido2Credentials != null) {
       domain.fido2Credentials = req.fido2Credentials.map((f2) =>
@@ -51,6 +53,8 @@ export class LoginExport {
   uris?: LoginUriExport[];
   username?: string;
   password?: string;
+  /** Not encrypted in account-encrypted exports, matching legacy-format cipher data. */
+  httpAuthenticationEnabled?: boolean;
   totp?: string;
   fido2Credentials?: Fido2CredentialExport[];
 
@@ -70,5 +74,6 @@ export class LoginExport {
     this.username = safeGetString(o.username);
     this.password = safeGetString(o.password);
     this.totp = safeGetString(o.totp);
+    this.httpAuthenticationEnabled = o.httpAuthenticationEnabled;
   }
 }
