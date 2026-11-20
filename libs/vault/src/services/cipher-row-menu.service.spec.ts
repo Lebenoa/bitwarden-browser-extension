@@ -25,7 +25,7 @@ import { CIPHER_SHARE_ACCESS, CipherShareAccess } from "../tokens/cipher-share-a
 import { VAULT_ROW_ACTIONS } from "../tokens/vault-row-actions.token";
 
 import { CipherActionService } from "./cipher-action.service";
-import { CipherRowMenuService } from "./cipher-row-menu.service";
+import { CipherRowMenuService, uniqueContributedActions } from "./cipher-row-menu.service";
 
 const userId = "test-user-id" as UserId;
 
@@ -118,9 +118,9 @@ describe("CipherRowMenuService", () => {
   function show(actionId: string, cipher: CipherView, collections: CollectionView[] = []): boolean {
     const action = service
       .getRowActions(collections, {
-        edit: () => {},
-        clone: () => {},
-        assignToCollections: () => {},
+        edit: () => { },
+        clone: () => { },
+        assignToCollections: () => { },
       })
       .find((a) => a.id === actionId);
     return action?.show?.(cipher) ?? true;
@@ -428,7 +428,7 @@ describe("CipherRowMenuService", () => {
       const withoutShare = TestBed.inject(CipherRowMenuService);
 
       const action = withoutShare
-        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .getRowActions([], { edit: () => { }, clone: () => { }, assignToCollections: () => { } })
         .find((a) => a.id === "shareViaLink");
 
       expect(action?.show?.(makeCipher())).toBe(false);
@@ -436,7 +436,7 @@ describe("CipherRowMenuService", () => {
 
     it("sits directly after addToSharedFolder", () => {
       const ids = service
-        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .getRowActions([], { edit: () => { }, clone: () => { }, assignToCollections: () => { } })
         .map((a) => a.id);
 
       expect(ids.indexOf("shareViaLink")).toBe(ids.indexOf("addToSharedFolder") + 1);
@@ -445,7 +445,7 @@ describe("CipherRowMenuService", () => {
     it("shares the cipher when chosen", () => {
       const cipher = makeCipher();
       const action = service
-        .getRowActions([], { edit: () => {}, clone: () => {}, assignToCollections: () => {} })
+        .getRowActions([], { edit: () => { }, clone: () => { }, assignToCollections: () => { } })
         .find((a) => a.id === "shareViaLink");
 
       void action?.run(cipher);
@@ -572,9 +572,9 @@ describe("CipherRowMenuService", () => {
     function visibleActionIds(cipher: CipherView, collections: CollectionView[] = []): string[] {
       return service
         .getRowActions(collections, {
-          edit: () => {},
-          clone: () => {},
-          assignToCollections: () => {},
+          edit: () => { },
+          clone: () => { },
+          assignToCollections: () => { },
         })
         .filter((action) => action.show?.(cipher) ?? true)
         .map((action) => action.id);
@@ -610,13 +610,13 @@ describe("CipherRowMenuService", () => {
   });
 
   describe("contributed actions (VAULT_ROW_ACTIONS)", () => {
-    const handlers = { edit: () => {}, clone: () => {}, assignToCollections: () => {} };
+    const handlers = { edit: () => { }, clone: () => { }, assignToCollections: () => { } };
 
     function contributed(
       id: string,
       overrides: Partial<VaultItemsTableRowAction<CipherViewLike>> = {},
     ): VaultItemsTableRowAction<CipherViewLike> {
-      return { id, label: id, icon: "bwi-key", run: () => {}, ...overrides };
+      return { id, label: id, icon: "bwi-key", run: () => { }, ...overrides };
     }
 
     /** Rebuilds the service with `actions` provided under `VAULT_ROW_ACTIONS`. */
@@ -696,6 +696,18 @@ describe("CipherRowMenuService", () => {
       expect(run).toHaveBeenCalledWith(cipher);
     });
 
+    it("checks a host's own built-in IDs when called directly", () => {
+      const kept = inProduction(() =>
+        uniqueContributedActions(
+          [contributed("item"), contributed("delete"), contributed("request")],
+          new Set(["item"]),
+        ),
+      );
+
+      expect(kept.map((action) => action.id)).toEqual(["delete", "request"]);
+    });
+
+
     it("throws in dev mode when an ID matches a built-in action", () => {
       expect(() => serviceWith([contributed("delete")])).toThrow(/"delete"/);
     });
@@ -768,7 +780,14 @@ describe("CipherRowMenuService", () => {
     );
 
     it.each(cases)("%s follows the revealed-cipher policy", (actionId, overrides) => {
-      const revealedAllowed = new Set([...allowed, "edit", "attachments"]);
+      const revealedAllowed = new Set([
+        ...allowed,
+        "edit",
+        "attachments",
+        "delete",
+        "permanentlyDelete",
+        "restore",
+      ]);
       revealedSubject.next(new Map([["revealed-id" as CipherId, new CipherView()]]));
 
       expect(
