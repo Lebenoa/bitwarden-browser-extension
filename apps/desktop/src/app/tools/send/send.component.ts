@@ -81,6 +81,10 @@ export class SendComponent {
     initialValue: false,
   });
 
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
   protected readonly listState = toSignal(
     combineLatest([
       this.sendItemsService.emptyList$,

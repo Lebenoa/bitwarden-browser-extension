@@ -123,6 +123,10 @@ export class SendComponent implements OnDestroy {
     { initialValue: false },
   );
 
+  protected readonly sendAuthRequired = toSignal(this.sendPolicyService.sendAuthRequired$, {
+    initialValue: false,
+  });
+
   protected readonly loading = toSignal(this.sendItemsService.loading$, { initialValue: true });
 
   protected readonly listState = toSignal(
